@@ -1,6 +1,9 @@
-void loop() {
-  double Ax, Ay, Az, T, Gx, Gy, Gz;
-  
+double Ax, Ay, Az, T, Gx, Gy, Gz;
+double acc_sqrt, acc_angle_roll, acc_angle_pitch, gyro_angle_roll, gyro_angle_pitch, total_angle_roll, total_angle_pitch;
+double rad_deg = 57.295779513;
+double past_time, cur_time, elapsed_time;
+
+void loop() {  
   Read_RawValue(MPU6050SlaveAddress, MPU6050_REGISTER_ACCEL_XOUT_H);
   
   //divide each with their sensitivity scale factor
@@ -12,6 +15,30 @@ void loop() {
   Gy = (double)GyroY/GyroScaleFactor;
   Gz = (double)GyroZ/GyroScaleFactor;
 
+  // Calculate Time Differential
+  past_time = cur_time;
+  cur_time = millis();
+  elapsed_time = (cur_time - past_time)/1000;
+  
+  // Calculate Roll and Pitch Angles from the Gyro
+  gyro_angle_roll = gyro_angle_roll + Gx*elapsed_time;
+  gyro_angle_pitch = gyro_angle_pitch + Gy*elapsed_time;
+//  Serial.print(gyro_angle_roll);
+//  Serial.print("\t "); Serial.println(gyro_angle_pitch);
+  
+
+  // Calculate Roll and Pitch Angles using Accel
+  acc_angle_roll = atan(Ax/sqrt(pow(Ax, 2) + pow(Az, 2)))*rad_deg;
+  acc_angle_pitch = atan(Ay/sqrt(pow(Ay, 2) + pow(Az, 2)))*rad_deg;
+//  Serial.print(acc_angle_roll);
+//  Serial.print("\t "); Serial.println(acc_angle_pitch);
+
+  // Complementary Filter
+  total_angle_roll = 0.98*(total_angle_roll + gyro_angle_roll) + 0.2*(acc_angle_roll);
+  total_angle_pitch = 0.98*(total_angle_pitch + gyro_angle_pitch) + 0.2*(acc_angle_pitch);
+  Serial.print(total_angle_roll);
+  Serial.print("\t "); Serial.println(total_angle_pitch);
+
 //  Serial.print("Ax: "); Serial.print(Ax);
 //  Serial.print("\tAy: "); Serial.print(Ay);
 //  Serial.print("\tAz: "); Serial.print(Az);
@@ -20,12 +47,45 @@ void loop() {
 //  Serial.print("\tGy: "); Serial.print(Gy);
 //  Serial.print("\tGz: "); Serial.println(Gz);
 
-  m1.writeMicroseconds(receiver_input_channel_5);
-  m2.writeMicroseconds(receiver_input_channel_5);
-  m3.writeMicroseconds(receiver_input_channel_5);
-  m4.writeMicroseconds(receiver_input_channel_5);
-  Serial.println(receiver_input_channel_5);
+//  m1.writeMicroseconds(receiver_input_throttle);
+//  m2.writeMicroseconds(receiver_input_throttle);
+//  m3.writeMicroseconds(receiver_input_throttle);
+//  m4.writeMicroseconds(receiver_input_throttle);
+//  Serial.println(receiver_input_channel_5);
 
+}
+
+
+void print_signals(){
+  Serial.print("Roll:");
+  if(receiver_input_roll - 1480 < 0)Serial.print("<<<");
+  else if(receiver_input_roll - 1520 > 0)Serial.print(">>>");
+  else Serial.print(" -+- ");
+  Serial.print(receiver_input_roll);
+
+  Serial.print("\tPitch:");
+  if(receiver_input_pitch- 1480 < 0)Serial.print(" ^^^ ");
+  else if(receiver_input_pitch - 1520 > 0)Serial.print(" vvv ");
+  else Serial.print(" -+- ");
+  Serial.print(receiver_input_pitch);
+
+  Serial.print("\tGear:");
+  if(receiver_input_gear- 1480 < 0)Serial.print(" vvv ");
+  else if(receiver_input_gear - 1520 > 0)Serial.print(" ^^^ ");
+  else Serial.print(" -+- ");
+  Serial.print(receiver_input_gear);
+
+  Serial.print("\tYaw:");
+  if(receiver_input_yaw- 1480 < 0)Serial.print(" <<< ");
+  else if(receiver_input_yaw - 1520 > 0)Serial.print(" >>> ");
+  else Serial.print(" -+- ");
+  Serial.print(receiver_input_yaw);
+
+  Serial.print("\tThrottle:");
+  if(receiver_input_throttle- 1480 < 0)Serial.print(" <<< ");
+  else if(receiver_input_throttle - 1520 > 0)Serial.print(" >>> ");
+  else Serial.print(" -+- ");
+  Serial.println(receiver_input_throttle);
 }
 
 //void loop() {

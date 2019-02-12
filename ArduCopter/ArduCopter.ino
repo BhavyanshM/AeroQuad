@@ -34,7 +34,7 @@ int16_t AccelX, AccelY, AccelZ, Temperature, GyroX, GyroY, GyroZ;
 
 // Declare Variables
 byte last_channel_1, last_channel_2, last_channel_3, last_channel_4, last_channel_5;
-int receiver_input_channel_1, receiver_input_channel_2, receiver_input_channel_3, receiver_input_channel_4, receiver_input_channel_5;
+int receiver_input_roll, receiver_input_pitch, receiver_input_gear, receiver_input_yaw, receiver_input_throttle;
 unsigned long timer_1, timer_2, timer_3, timer_4, timer_5, esc_timer, current_time;
 
 Servo m1, m2, m3, m4;
@@ -47,7 +47,10 @@ void setup() {
   PCMSK0 |= (1 << PCINT2);
   PCMSK0 |= (1 << PCINT3);
   PCMSK0 |= (1 << PCINT4);
-  Serial.begin(9600);
+
+  Serial.begin(115200);
+  Wire.begin();
+  MPU6050_Init();
 
   m1.attach(4, MIN_PULSE_LENGTH, MAX_PULSE_LENGTH);
   m2.attach(5, MIN_PULSE_LENGTH, MAX_PULSE_LENGTH);
@@ -58,7 +61,7 @@ void setup() {
 
 //  m1.writeMicroseconds(MIN_PULSE_LENGTH);
 //  m2.writeMicroseconds(MIN_PULSE_LENGTH);
-  m3.writeMicroseconds(MIN_PULSE_LENGTH);
+//  m3.writeMicroseconds(MIN_PULSE_LENGTH);
 //  m4.writeMicroseconds(MIN_PULSE_LENGTH);
   
 }
@@ -73,7 +76,7 @@ ISR(PCINT0_vect){
   }
   else if(last_channel_1 == 1 && !(PINB & B00000001)){
     last_channel_1 = 0;
-    receiver_input_channel_1 = micros() - timer_1;
+    receiver_input_roll = micros() - timer_1;
   }  
 
   // Channel 2
@@ -83,7 +86,7 @@ ISR(PCINT0_vect){
   }
   else if(last_channel_2 == 1 && !(PINB & B00000010)){
     last_channel_2 = 0;
-    receiver_input_channel_2 = micros() - timer_2;
+    receiver_input_pitch = micros() - timer_2;
   } 
 
   // Channel 3
@@ -93,7 +96,7 @@ ISR(PCINT0_vect){
   }
   else if(last_channel_3 == 1 && !(PINB & B00000100)){
     last_channel_3 = 0;
-    receiver_input_channel_3 = micros() - timer_3;
+    receiver_input_gear = micros() - timer_3;
   } 
 
   // Channel 4
@@ -103,17 +106,7 @@ ISR(PCINT0_vect){
   }
   else if(last_channel_4 == 1 && !(PINB & B00001000)){
     last_channel_4 = 0;
-    receiver_input_channel_4 = micros() - timer_4;
-  } 
-
-  // Channel 4
-  if(last_channel_4 == 0 && PINB & B00001000 ){
-    last_channel_4 = 1;
-    timer_4 = micros(); 
-  }
-  else if(last_channel_4 == 1 && !(PINB & B00001000)){
-    last_channel_4 = 0;
-    receiver_input_channel_4 = micros() - timer_4;
+    receiver_input_yaw = micros() - timer_4;
   } 
 
   // Channel 5: Throttle
@@ -123,39 +116,6 @@ ISR(PCINT0_vect){
   }
   else if(last_channel_5 == 1 && !(PINB & B00010000)){
     last_channel_5 = 0;
-    receiver_input_channel_5 = micros() - timer_5;
+    receiver_input_throttle = micros() - timer_5;
   }
-}
-
-
-void print_signals(){
-  Serial.print("Roll:");
-  if(receiver_input_channel_1 - 1480 < 0)Serial.print("<<<");
-  else if(receiver_input_channel_1 - 1520 > 0)Serial.print(">>>");
-  else Serial.print(" -+- ");
-  Serial.print(receiver_input_channel_1);
-
-  Serial.print("\tPitch:");
-  if(receiver_input_channel_2 - 1480 < 0)Serial.print(" ^^^ ");
-  else if(receiver_input_channel_2 - 1520 > 0)Serial.print(" vvv ");
-  else Serial.print(" -+- ");
-  Serial.print(receiver_input_channel_2);
-
-  Serial.print("\tGear:");
-  if(receiver_input_channel_3 - 1480 < 0)Serial.print(" vvv ");
-  else if(receiver_input_channel_3 - 1520 > 0)Serial.print(" ^^^ ");
-  else Serial.print(" -+- ");
-  Serial.print(receiver_input_channel_3);
-
-  Serial.print("\tYaw:");
-  if(receiver_input_channel_4 - 1480 < 0)Serial.print(" <<< ");
-  else if(receiver_input_channel_4 - 1520 > 0)Serial.print(" >>> ");
-  else Serial.print(" -+- ");
-  Serial.print(receiver_input_channel_4);
-
-  Serial.print("\tThrottle:");
-  if(receiver_input_channel_5 - 1480 < 0)Serial.print(" <<< ");
-  else if(receiver_input_channel_5 - 1520 > 0)Serial.print(" >>> ");
-  else Serial.print(" -+- ");
-  Serial.println(receiver_input_channel_5);
 }
