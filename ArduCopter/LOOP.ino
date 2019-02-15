@@ -29,15 +29,15 @@ void loop() {
 
   // Calculate Roll and Pitch Angles using Accel
   acc_angle_roll = atan(Ax/sqrt(pow(Ax, 2) + pow(Az, 2)))*rad_deg;
-  acc_angle_pitch = atan(Ay/sqrt(pow(Ay, 2) + pow(Az, 2)))*rad_deg;
-//  Serial.print(acc_angle_roll);
-//  Serial.print("\t "); Serial.println(acc_angle_pitch);
+  acc_angle_pitch = atan(Ay/sqrt(pow(Ay, 2) + pow(Az, 2)))*rad_deg; 
+  Serial.print(acc_angle_roll);
+  Serial.print("\t "); Serial.println(acc_angle_pitch);
 
   // Complementary Filter
   total_angle_roll = 0.98*(total_angle_roll + gyro_angle_roll) + 0.2*(acc_angle_roll);
   total_angle_pitch = 0.98*(total_angle_pitch + gyro_angle_pitch) + 0.2*(acc_angle_pitch);
-  Serial.print(total_angle_roll);
-  Serial.print("\t "); Serial.println(total_angle_pitch);
+//  Serial.print(total_angle_roll);
+//  Serial.print("\t "); Serial.println(total_angle_pitch);
 
 //  Serial.print("Ax: "); Serial.print(Ax);
 //  Serial.print("\tAy: "); Serial.print(Ay);
@@ -47,12 +47,14 @@ void loop() {
 //  Serial.print("\tGy: "); Serial.print(Gy);
 //  Serial.print("\tGz: "); Serial.println(Gz);
 
-//  m1.writeMicroseconds(receiver_input_throttle);
-//  m2.writeMicroseconds(receiver_input_throttle);
-//  m3.writeMicroseconds(receiver_input_throttle);
-//  m4.writeMicroseconds(receiver_input_throttle);
+  m1.writeMicroseconds(receiver_input_throttle);
+  m2.writeMicroseconds(receiver_input_throttle);
+  m3.writeMicroseconds(receiver_input_throttle);
+  m4.writeMicroseconds(receiver_input_throttle);
 //  Serial.println(receiver_input_channel_5);
 
+
+//  print_signals();
 }
 
 

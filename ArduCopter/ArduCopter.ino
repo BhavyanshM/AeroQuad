@@ -69,7 +69,7 @@ void setup() {
 
 
 ISR(PCINT0_vect){
-  // Channel 1
+  // Channel 1: Pin 7: ROLL
   if(last_channel_1 == 0 && PINB & B00000001 ){
     last_channel_1 = 1;
     timer_1 = micros();
@@ -79,7 +79,7 @@ ISR(PCINT0_vect){
     receiver_input_roll = micros() - timer_1;
   }  
 
-  // Channel 2
+  // Channel 2: Pin 9: PITCH
   if(last_channel_2 == 0 && PINB & B00000010 ){
     last_channel_2 = 1;
     timer_2 = micros();
@@ -89,7 +89,7 @@ ISR(PCINT0_vect){
     receiver_input_pitch = micros() - timer_2;
   } 
 
-  // Channel 3
+  // Channel 3: Pin 10: GEAR
   if(last_channel_3 == 0 && PINB & B00000100 ){
     last_channel_3 = 1;
     timer_3 = micros(); 
@@ -99,7 +99,7 @@ ISR(PCINT0_vect){
     receiver_input_gear = micros() - timer_3;
   } 
 
-  // Channel 4
+  // Channel 4: Pin 11: YAW
   if(last_channel_4 == 0 && PINB & B00001000 ){
     last_channel_4 = 1;
     timer_4 = micros(); 
@@ -109,7 +109,7 @@ ISR(PCINT0_vect){
     receiver_input_yaw = micros() - timer_4;
   } 
 
-  // Channel 5: Throttle
+  // Channel 5: Pin 12: THROTTLE
   if(last_channel_5 == 0 && PINB & B00010000 ){
     last_channel_5 = 1;
     timer_5 = micros(); 
