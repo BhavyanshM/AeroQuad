@@ -1,4 +1,4 @@
-
+int gyroResetTimer = 0;
 
 void loop() {  
   Read_RawValue(MPU6050SlaveAddress, MPU6050_REGISTER_ACCEL_XOUT_H);
@@ -16,34 +16,45 @@ void loop() {
   Gy -= gyro_roll_cal;
   Gz -= gyro_yaw_cal;
 
-  Ax -= accel_pitch_cal;
-  Ay -= accel_roll_cal;
+//  Ax -= accel_pitch_cal;
+//  Ay -= accel_roll_cal;
 //  Az -= accel_yaw_cal;
 
   // Calculate Time Differential
   past_time = cur_time;
   cur_time = millis();
+  if(gyroResetTimer == 5000 ){
+    gyro_angle_pitch = 0.0;
+    gyro_angle_roll = 0.0;
+    gyro_angle_yaw = 0.0;
+    gyroResetTimer=1;
+  }else{
+    gyroResetTimer += 1;  
+  }
+  Serial.println(gyroResetTimer);
   elapsed_time = (cur_time - past_time)/1000;
   
   // GYRO: PITCH_X, ROLL_Y, YAW_Z
   gyro_angle_pitch = gyro_angle_pitch + Gx*elapsed_time;
   gyro_angle_roll = gyro_angle_roll + Gy*elapsed_time;
   gyro_angle_yaw = gyro_angle_yaw + Gz*elapsed_time;
-  Serial.print(gyro_angle_pitch);Serial.print("\t "); 
-  Serial.print(gyro_angle_roll);Serial.print("\t ");
-  Serial.print(gyro_angle_yaw);Serial.print("\t ");  
+  Serial.print("G_PITCH:");
+  Serial.print(gyro_angle_pitch);Serial.print("\tG_ROLL:");
+  Serial.print(gyro_angle_roll);Serial.print("\tG_YAW:");
+  Serial.print(gyro_angle_yaw);Serial.print("\t");
 
   // ACCEL: ROLL_X, PITCH_Y
   acc_angle_roll = atan(Ax/sqrt(pow(Ay, 2) + pow(Az, 2)))*rad_deg;
   acc_angle_pitch = atan(Ay/sqrt(pow(Ax, 2) + pow(Az, 2)))*rad_deg; 
-  Serial.print(acc_angle_roll);
-  Serial.print("\t "); Serial.println(acc_angle_pitch);
+  Serial.print("ACC_ROLL:");
+  Serial.print(acc_angle_roll);Serial.print("\tACC_PITCH:"); 
+  Serial.print(acc_angle_pitch);Serial.print("\tTOT_ROLL:");
 
   // Complementary Filter
-  total_angle_roll = 0.98*(total_angle_roll + gyro_angle_roll) + 0.02*(acc_angle_roll);
-  total_angle_pitch = 0.98*(total_angle_pitch + gyro_angle_pitch) + 0.02*(acc_angle_pitch);
-//  Serial.print(total_angle_roll);
-//  Serial.print("\t "); Serial.println(total_angle_pitch);
+  total_angle_roll = 0.1*(total_angle_roll + gyro_angle_roll) + 0.8*(acc_angle_roll);
+  total_angle_pitch = 0.1*(total_angle_pitch + gyro_angle_pitch) + 0.8*(acc_angle_pitch);
+  Serial.print(total_angle_roll);
+  Serial.print("\tTOT_PITCH:"); Serial.println(total_angle_pitch);
 
 //  Serial.print("Ax: "); Serial.print(Ax);
 //  Serial.print("\tAy: "); Serial.print(Ay);
