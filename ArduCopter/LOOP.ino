@@ -1,7 +1,4 @@
-double Ax, Ay, Az, T, Gx, Gy, Gz;
-double acc_sqrt, acc_angle_roll, acc_angle_pitch, gyro_angle_roll, gyro_angle_pitch, total_angle_roll, total_angle_pitch;
-double rad_deg = 57.295779513;
-double past_time, cur_time, elapsed_time;
+
 
 void loop() {  
   Read_RawValue(MPU6050SlaveAddress, MPU6050_REGISTER_ACCEL_XOUT_H);
@@ -15,19 +12,24 @@ void loop() {
   Gy = (double)GyroY/GyroScaleFactor;
   Gz = (double)GyroZ/GyroScaleFactor;
 
+  Gx -= gyro_pitch_cal;
+  Gy -= gyro_roll_cal;
+  Gz -= gyro_yaw_cal;
+
   // Calculate Time Differential
   past_time = cur_time;
   cur_time = millis();
   elapsed_time = (cur_time - past_time)/1000;
   
-  // Calculate Roll and Pitch Angles from the Gyro
-  gyro_angle_roll = gyro_angle_roll + Gx*elapsed_time;
-  gyro_angle_pitch = gyro_angle_pitch + Gy*elapsed_time;
-//  Serial.print(gyro_angle_roll);
-//  Serial.print("\t "); Serial.println(gyro_angle_pitch);
-  
+  // GYRO: PITCH_X, ROLL_Y, YAW_Z
+  gyro_angle_pitch = gyro_angle_pitch + Gx*elapsed_time;
+  gyro_angle_roll = gyro_angle_roll + Gy*elapsed_time;
+  gyro_angle_yaw = gyro_angle_yaw + Gz*elapsed_time;
+  Serial.print(gyro_angle_pitch);Serial.print("\t "); 
+  Serial.print(gyro_angle_roll);Serial.print("\t ");
+  Serial.print(gyro_angle_yaw);Serial.print("\n ");  
 
-  // Calculate Roll and Pitch Angles using Accel
+  // ACCEL: ROLL_X, PITCH_Y
   acc_angle_roll = atan(Ax/sqrt(pow(Ax, 2) + pow(Az, 2)))*rad_deg;
   acc_angle_pitch = atan(Ay/sqrt(pow(Ay, 2) + pow(Az, 2)))*rad_deg; 
 //  Serial.print(acc_angle_roll);
@@ -56,7 +58,7 @@ void loop() {
 //  Serial.println(receiver_input_channel_5);
 
 
-  print_signals();
+//  print_signals();
 }
 
 

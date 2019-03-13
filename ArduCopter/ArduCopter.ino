@@ -27,6 +27,12 @@ const uint8_t MPU6050_REGISTER_SIGNAL_PATH_RESET  = 0x68;
 
 int16_t AccelX, AccelY, AccelZ, Temperature, GyroX, GyroY, GyroZ;
 
+double gyro_roll_cal, gyro_pitch_cal, gyro_yaw_cal;
+double Ax, Ay, Az, T, Gx, Gy, Gz;
+double acc_sqrt, acc_angle_roll, acc_angle_pitch, gyro_angle_roll, gyro_angle_pitch, gyro_angle_yaw, total_angle_roll, total_angle_pitch, total_angle_yaw;
+double rad_deg = 57.295779513;
+double past_time, cur_time, elapsed_time;
+
 // Customize here pulse lengths as needed
 #define MIN_PULSE_LENGTH 1000 // Minimum pulse length in µs
 #define MAX_PULSE_LENGTH 2000 // Maximum pulse length in µs
@@ -57,6 +63,24 @@ void setup() {
   m3.attach(6, MIN_PULSE_LENGTH, MAX_PULSE_LENGTH);
   m4.attach(7, MIN_PULSE_LENGTH, MAX_PULSE_LENGTH);
 
+  for(int i = 0; i<2000; i++){
+      Read_RawValue(MPU6050SlaveAddress, MPU6050_REGISTER_ACCEL_XOUT_H);
+ 
+      gyro_pitch_cal += (double)GyroX/GyroScaleFactor;
+      gyro_roll_cal += (double)GyroY/GyroScaleFactor;
+      gyro_yaw_cal += (double)GyroZ/GyroScaleFactor;
+
+  }
+
+  gyro_pitch_cal /= 2000;
+  gyro_roll_cal /=2000;
+  gyro_yaw_cal /=2000;
+  
+//  Serial.print(gyro_pitch_cal); Serial.print("\t");
+//  Serial.print(gyro_roll_cal); Serial.print("\t");
+//  Serial.print(gyro_yaw_cal); Serial.print("\n");
+
+  
   delay(1000);
 
 //  m1.writeMicroseconds(MIN_PULSE_LENGTH);
