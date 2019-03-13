@@ -16,6 +16,10 @@ void loop() {
   Gy -= gyro_roll_cal;
   Gz -= gyro_yaw_cal;
 
+  Ax -= accel_pitch_cal;
+  Ay -= accel_roll_cal;
+//  Az -= accel_yaw_cal;
+
   // Calculate Time Differential
   past_time = cur_time;
   cur_time = millis();
@@ -27,17 +31,17 @@ void loop() {
   gyro_angle_yaw = gyro_angle_yaw + Gz*elapsed_time;
   Serial.print(gyro_angle_pitch);Serial.print("\t "); 
   Serial.print(gyro_angle_roll);Serial.print("\t ");
-  Serial.print(gyro_angle_yaw);Serial.print("\n ");  
+  Serial.print(gyro_angle_yaw);Serial.print("\t ");  
 
   // ACCEL: ROLL_X, PITCH_Y
-  acc_angle_roll = atan(Ax/sqrt(pow(Ax, 2) + pow(Az, 2)))*rad_deg;
-  acc_angle_pitch = atan(Ay/sqrt(pow(Ay, 2) + pow(Az, 2)))*rad_deg; 
-//  Serial.print(acc_angle_roll);
-//  Serial.print("\t "); Serial.println(acc_angle_pitch);
+  acc_angle_roll = atan(Ax/sqrt(pow(Ay, 2) + pow(Az, 2)))*rad_deg;
+  acc_angle_pitch = atan(Ay/sqrt(pow(Ax, 2) + pow(Az, 2)))*rad_deg; 
+  Serial.print(acc_angle_roll);
+  Serial.print("\t "); Serial.println(acc_angle_pitch);
 
   // Complementary Filter
-  total_angle_roll = 0.98*(total_angle_roll + gyro_angle_roll) + 0.2*(acc_angle_roll);
-  total_angle_pitch = 0.98*(total_angle_pitch + gyro_angle_pitch) + 0.2*(acc_angle_pitch);
+  total_angle_roll = 0.98*(total_angle_roll + gyro_angle_roll) + 0.02*(acc_angle_roll);
+  total_angle_pitch = 0.98*(total_angle_pitch + gyro_angle_pitch) + 0.02*(acc_angle_pitch);
 //  Serial.print(total_angle_roll);
 //  Serial.print("\t "); Serial.println(total_angle_pitch);
 

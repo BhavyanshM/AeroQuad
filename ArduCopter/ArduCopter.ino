@@ -27,7 +27,7 @@ const uint8_t MPU6050_REGISTER_SIGNAL_PATH_RESET  = 0x68;
 
 int16_t AccelX, AccelY, AccelZ, Temperature, GyroX, GyroY, GyroZ;
 
-double gyro_roll_cal, gyro_pitch_cal, gyro_yaw_cal;
+double gyro_roll_cal, gyro_pitch_cal, gyro_yaw_cal, accel_pitch_cal, accel_roll_cal, accel_yaw_cal;
 double Ax, Ay, Az, T, Gx, Gy, Gz;
 double acc_sqrt, acc_angle_roll, acc_angle_pitch, gyro_angle_roll, gyro_angle_pitch, gyro_angle_yaw, total_angle_roll, total_angle_pitch, total_angle_yaw;
 double rad_deg = 57.295779513;
@@ -70,11 +70,19 @@ void setup() {
       gyro_roll_cal += (double)GyroY/GyroScaleFactor;
       gyro_yaw_cal += (double)GyroZ/GyroScaleFactor;
 
+      accel_pitch_cal += (double)AccelX/AccelScaleFactor;
+      accel_roll_cal += (double)AccelY/AccelScaleFactor;
+      accel_yaw_cal += (double)AccelZ/AccelScaleFactor;
+
   }
 
   gyro_pitch_cal /= 2000;
   gyro_roll_cal /=2000;
   gyro_yaw_cal /=2000;
+
+  accel_pitch_cal /= 2000;
+  accel_roll_cal /=2000;
+  accel_yaw_cal /=2000;
   
 //  Serial.print(gyro_pitch_cal); Serial.print("\t");
 //  Serial.print(gyro_roll_cal); Serial.print("\t");
