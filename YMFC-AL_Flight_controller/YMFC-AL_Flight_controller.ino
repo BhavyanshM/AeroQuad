@@ -71,7 +71,7 @@ boolean gyro_angles_set;
 //Setup routine
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void setup(){
-  //Serial.begin(57600);
+  Serial.begin(57600);
   //Copy the EEPROM data for fast access data.
   for(start = 0; start <= 35; start++)eeprom_data[start] = EEPROM.read(start);
   start = 0;                                                                //Set start back to zero.
@@ -151,7 +151,8 @@ void setup(){
   //12.6V equals 1023 analogRead(0).
   //1260 / 1023 = 1.2317.
   //The variable battery_voltage holds 1050 if the battery voltage is 10.5V.
-  battery_voltage = (analogRead(0) + 65) * 1.2317;
+  battery_voltage = (analogRead(0)) * 1.2317 * 4;
+  Serial.println(battery_voltage);
 
   loop_timer = micros();                                                    //Set the timer for the next loop.
 
@@ -266,10 +267,11 @@ void loop(){
   //The battery voltage is needed for compensation.
   //A complementary filter is used to reduce noise.
   //0.09853 = 0.08 * 1.2317.
-  battery_voltage = battery_voltage * 0.92 + (analogRead(0) + 65) * 0.09853;
+  battery_voltage = battery_voltage * 0.92 + (analogRead(0)*4) * 0.09853;
+  Serial.println(battery_voltage);
 
   //Turn on the led if battery voltage is to low.
-  if(battery_voltage < 1000 && battery_voltage > 600)digitalWrite(12, HIGH);
+//  if(battery_voltage < 1000 && battery_voltage > 600)digitalWrite(12, HIGH);
 
 
   throttle = receiver_input_channel_3;                                      //We need the throttle signal as a base signal.
@@ -555,4 +557,3 @@ void set_gyro_registers(){
 
   }  
 }
-
